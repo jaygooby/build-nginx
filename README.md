@@ -61,3 +61,35 @@ The config file is just a set of command-line options separated by newlines. Com
 -o --with-cc-opt=-I/opt/openssl/include
 -o --with-ld-opt=-L/opt/openssl/lib
 ```
+
+## Other options
+Call with `-h` to see the full set of options you can use. Currently these are:
+
+```
+-b If you want to build from an existing source repo
+
+-c If you only want to clone (download) and not build
+
+-d <dependencies> Specify a git url and branch/tag/version for e.g. pcre
+
+-k <file>  Specify which config file to read this script's arguments from.
+           The config file is a text file in which command line arguments
+           can be written which then will be used as if they were written on
+           the actual command line.
+
+-m <additional modules> Specify a git url, branch/tag/version and
+                        optional src folder where nginx looks for the
+                        module config file.
+
+-o <options> To pass additional options to the nginx configure script
+
+-s <build directory> The directory where this script will git clone
+                     nginx and any modules and dependencies it needs
+                     to build. Defaults to ~/src/nginx-build
+
+-n <git-repo and/or version> Optional nginx git repo url and/or optional
+                             branch/tag/version. Defaults to
+                             https://github.com/nginx/nginx and master.
+                             To specify just a branch/tag/version use @branch.
+                             To specify both, use git-url@branch
+```
