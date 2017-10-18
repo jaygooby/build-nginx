@@ -52,7 +52,7 @@ The config file is just a set of command-line options separated by newlines. Com
 
 ```
 # nginx version 1.0
--n https://github.com/nginx/nginx.git/@release-1.0.0
+-n https://github.com/nginx/nginx.git@release-1.0.0
 # it all lives in /opt/nginx
 -o --prefix=/opt/nginx
 -o --with-http_ssl_module # HTTPS
