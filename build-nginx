@@ -157,6 +157,7 @@ usage() {
               The config file is a text file in which command line arguments
               can be written which then will be used as if they were written
               on the actual command line.
+    -h Help
     -m <additional modules> Specify a git url, branch/tag/version and
                             optional src folder where nginx looks for the
                             module config file
@@ -231,8 +232,13 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
        exit 1
        ;;
     \?)
-      echo -e "Invalid option: -$OPTARG" && usage >&2
-      exit 1
+      if [[ $OPTARG = "h" || $OPTARG = "?" ]]; then
+        usage >&2
+        exit 0
+      else
+        echo -e "Invalid option: -$OPTARG" && usage >&2
+        exit 1
+      fi
       ;;
   esac
 done
