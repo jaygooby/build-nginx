@@ -18,3 +18,10 @@
   [ $status -ne 0 ]
   [[ "$output" =~ "Invalid option" ]]
 }
+
+@test "Clone nginx master" {
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -c
+  [ $status -eq 0 ]
+  [ -d "$builddir/nginx-master" ]
+}
