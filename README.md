@@ -1,6 +1,8 @@
 # About build-nginx
 An nginx build tool to simplify downloading and building specific versions of [nginx](http://nginx.org/) with different core and 3rd-party modules.
 
+[![Build Status](https://travis-ci.org/jaygooby/build-nginx.svg?branch=master)](https://travis-ci.org/jaygooby/build-nginx)
+
 # Usage
 Basic usage:
 
