@@ -34,3 +34,9 @@
   [ $status -eq 0 ]
   [ -f "$builddir/nginx-master/objs/nginx" ]
 }
+
+@test "Clone and build nginx with a 3rd party module from a specific branch" {
+  run ./build-nginx -m https://github.com/jaygooby/build-nginx.git@hello-world-module
+  [ $status -eq 0 ]
+  [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
+}
