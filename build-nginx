@@ -127,6 +127,7 @@ clone_nginx_and_modules() {
   # to the nginx --configure options for inclusion in the build
   for source in "${sources[@]}"; do
     read -r repo_url branch add_module_dir <<<$(git_url_version_and_module_configure_dir $source)
+    branch=${branch:-master}
 
     source_dir="$build_dir/$(basename $repo_url .git)-$branch"
     add_module_dir="$source_dir/$add_module_dir"
