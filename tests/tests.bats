@@ -26,6 +26,15 @@
   [ -d "$builddir/nginx-master" ]
 }
 
+@test "Clone nginx at specific version" {
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -n https://github.com/nginx/nginx.git@release-1.12.2
+  [ $status -eq 0 ]
+  [ -d "$builddir/nginx-release-1.12.2" ]
+  run "$builddir/nginx-release-1.12.2/objs/nginx" -V
+  [[ "$output" =~ "nginx version: nginx/1.12.2" ]]
+}
+
 @test "Build from an existing cloned source directory" {
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -c
