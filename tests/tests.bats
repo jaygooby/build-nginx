@@ -65,3 +65,8 @@
   [[ "$output" =~ "--with-openssl=" ]]
   [[ "$output" =~ "--with-zlib=" ]]
 }
+
+@test "Use a config file" {
+  run ./build-nginx -k tests/test-config
+  [ $status -eq 0 ]
+}
