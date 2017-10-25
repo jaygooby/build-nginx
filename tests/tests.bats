@@ -56,3 +56,12 @@
   run "$builddir/nginx-master/objs/nginx" -V
   [[ "$output" =~ "--with-openssl=" ]]
 }
+
+@test "nginx with openssl and zlib" {
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -d https://github.com/openssl/openssl.git -d https://github.com/madler/zlib.git
+  [ $status -eq 0 ]
+  run "$builddir/nginx-master/objs/nginx" -V
+  [[ "$output" =~ "--with-openssl=" ]]
+  [[ "$output" =~ "--with-zlib=" ]]
+}
