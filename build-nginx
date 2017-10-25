@@ -93,7 +93,7 @@ clone_at_version() {
 
 #
 clone_dependencies() {
-  dependencies="$1"
+  dependencies=($1)
   for dependency in "${dependencies[@]}"; do
     read -r repo_url branch <<<$(git_url_version_and_module_configure_dir $dependency)
     branch=${branch:-master}
