@@ -49,3 +49,10 @@
   [ $status -eq 0 ]
   [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
 }
+@test "nginx with openssl 1.0.2l" {
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -d https://github.com/openssl/openssl.git@OpenSSL_1_0_2l
+  [ $status -eq 0 ]
+  run "$builddir/nginx-master/objs/nginx" -V
+  [[ "$output" =~ "--with-openssl=" ]]
+}
