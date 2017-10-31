@@ -25,6 +25,7 @@
 # Builds nginx with an optional list of
 #
 # Requires git version 1.7.10 or later (--single-branch option)
+# and wget
 #
 # Call with ./build-nginx to clone and compile the various modules and
 # nginx itself. Defaults to building in ~/src/nginx-build
@@ -74,6 +75,22 @@ module_configure_dir() {
   echo $1 | cut -sd',' -f2
 }
 
+expand_error() {
+  echo nope $1 && exit 1
+}
+
+download_and_expand() {
+  dir="$1"
+  archive_url="$2"
+  archive_file="$(basename "$archive_url")"
+  wget "$archive_url" -O "$dir/$archive_file"
+  case "$archive_url" in
+    *tar.gz*) (cd "$dir" && tar -zxf "$archive_file") || expand_error $archive_url ;;
+    *tgz*)    (cd "$dir" && tar -zxf "$archive_file") || expand_error $archive_url ;;
+    *zip)     (cd "$dir" && unzip "$archive_file") || expand_error $archive_url ;;
+  esac
+}
+
 clone_error() {
   echo "Couldn't checkout $1 at $2 into $3"
   exit 1
@@ -83,12 +100,19 @@ clone_error() {
 # branch/tag/version requested in $3 as the folder named in $4
 # Does all this in the build folder which is passed in $1
 clone_at_version() {
+  dir="$1"
   repo="$2"
   tag="${3:-master}"
 
-  cd "$1"
-  rm -rf "$4"
-  git clone "$repo" --branch "$tag" --single-branch  "$4" || clone_error "$2" "$3" "$4"
+  if [[ "$repo" =~ \.(zip|tgz|tar\.gz) ]]; then
+    # don't clone, download and expand
+    download_and_expand "$dir" "$repo"
+  else
+    # git clone
+    cd "$dir"
+    rm -rf "$4"
+    git clone "$repo" --branch "$tag" --single-branch  "$4" || clone_error "$repo" "$tag" "$4"
+  fi
 }
 
 #
@@ -96,9 +120,20 @@ clone_dependencies() {
   dependencies=($1)
   for dependency in "${dependencies[@]}"; do
     read -r repo_url branch <<<$(git_url_version_and_module_configure_dir $dependency)
-    branch=${branch:-master}
 
-    source_dir="$build_dir/$(basename $repo_url .git)-$branch"
+    # Only set a branch if we're cloning from git
+    # If we're extracting a tgz or zip, we don't care
+    if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
+      case "$repo_url" in
+        *tar.gz*) extension=".tar.gz" ;;
+        *tgz*)    extension=".tgz" ;;
+        *zip)     extension=".zip" ;;
+      esac
+      source_dir="$build_dir/$(basename $repo_url $extension)"
+    else
+      branch=${branch:-master}
+      source_dir="$build_dir/$(basename $repo_url .git)-$branch"
+    fi
 
     # Set the --with-openssl=DIR, --with-zlib=DIR, --with-openssl=DIR or
     # --with-libatomic=DIR nginx configure option if the relevant
@@ -194,11 +229,11 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
     #    recompile. Useful if you're making manual changes.
     b) dont_clone=1 ;;
 
-    # -c <dependencies> optional dependencies such as pcre and openssl
+    # -c download the git sources and then stop. Useful if you need to grab
+    #    the sources for caching, archiving etc.
     c) clone_only=1 ;;
 
-    # -d download the git sources and then stop. Useful if you need to grab
-    #    the sources for caching, archiving etc.
+    # -d <dependency url> optional dependencies such as pcre and openssl
     d) dependencies="${dependencies:-} ${OPTARG}" ;;
 
     # -k <file> the file that specifes this script's command line options
