@@ -26,8 +26,17 @@ How about getting nginx stable version 1.12.2 built with OpenSSL version 1.0.2l 
 
 Because you've specified OpenSSL as a dependency (`-d`) the nginx configure script automatically gets set with the `--with-openssl=` path.
 
+## Archive URLs as well as git repos
+If you don't want to use a git repo, you can also use a source archive:
+
+```
+./build-nginx -n http://nginx.org/download/nginx-1.13.6.tar.gz \
+              -d https://ftp.pcre.org/pub/pcre/pcre-8.41.tar.gz \
+              -d https://www.openssl.org/source/openssl-1.0.2l.tar.gz
+```
+
 ## 3rd party modules
-You can also specify 3rd party modules using the same `git repo url @ version/tag/branch` string. In the following example we haven't specifed an nginx version, so we clone from master, but we do clone a forked version of the nginx-upstream-fair module at version 0.1.3
+You can also specify 3rd party modules using the same `git repo url @ version/tag/branch` string or archive url format. In the following example we haven't specifed an nginx version, so we clone from master, but we do clone a forked version of the nginx-upstream-fair module at version 0.1.3
 
 ```
 ./build-nginx \
@@ -35,6 +44,13 @@ You can also specify 3rd party modules using the same `git repo url @ version/ta
 ```
 
 Because we've specified the module (`-m`) the nginx configure script is automatically called with the `--add-module=` option, pointing to where the module was cloned.
+
+You could also use the official release archive URL:
+
+```
+./build-nginx \
+-m https://github.com/itoffshore/nginx-upstream-fair/archive/0.1.3.zip
+```
 
 ## 3rd party modules with a different config folder
 Some nginx modules don't have the `config` file in their root, and in these cases you need to let the nginx configure script know where to find it. Do this with an optional folder name after the version; in the example below we're using the nginx NAXI project repository, specifying version `0.55.3` and letting the configure script know it needs to look in the NAXI `naxi_src` folder for the `config` file.

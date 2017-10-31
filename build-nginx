@@ -87,7 +87,7 @@ download_and_expand() {
   case "$archive_url" in
     *tar.gz*) (cd "$dir" && tar -zxf "$archive_file") || expand_error $archive_url ;;
     *tgz*)    (cd "$dir" && tar -zxf "$archive_file") || expand_error $archive_url ;;
-    *zip)     (cd "$dir" && unzip "$archive_file") || expand_error $archive_url ;;
+    *zip)     (cd "$dir" && unzip -fo "$archive_file") || expand_error $archive_url ;;
   esac
 }
 
@@ -162,9 +162,21 @@ clone_nginx_and_modules() {
   # to the nginx --configure options for inclusion in the build
   for source in "${sources[@]}"; do
     read -r repo_url branch add_module_dir <<<$(git_url_version_and_module_configure_dir $source)
-    branch=${branch:-master}
 
-    source_dir="$build_dir/$(basename $repo_url .git)-$branch"
+    # Only set a branch if we're cloning from git
+    # If we're extracting a tgz or zip, we don't care
+    if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
+      case "$repo_url" in
+        *tar.gz*) extension=".tar.gz" ;;
+        *tgz*)    extension=".tgz" ;;
+        *zip)     extension=".zip" ;;
+      esac
+      source_dir="$build_dir/$(basename $repo_url $extension)"
+    else
+      branch=${branch:-master}
+      source_dir="$build_dir/$(basename $repo_url .git)-$branch"
+    fi
+
     add_module_dir="$source_dir/$add_module_dir"
     add_module_dir="${add_module_dir%/}" # strip the trailing slash
 
@@ -300,14 +312,22 @@ if [ -n "${clone_only:-}" ]; then
 fi
 
 # If we're cloning and building, clean, configure and build
-cd "$nginx_dir"
+echo cd "$nginx_dir"
 make clean || echo "No Makefile to clean"
 
-if [ -n "${nginx_configure_options:-}" ]; then
-  echo ./auto/configure "${nginx_configure_options[@]}" $add_module
-  ./auto/configure "${nginx_configure_options[@]}" $add_module
+# If we cloned from git, we call ./auto/configure but if we
+# downloaded a release, we call ./configure
+if [ -f "$nginx_dir/auto/configure" ]; then
+  conf=./auto/configure
 else
-  ./auto/configure $add_module
+  conf=./configure
+fi
+
+if [ -n "${nginx_configure_options:-}" ]; then
+  echo $conf "${nginx_configure_options[@]}" $add_module
+  cd "$nginx_dir" && $conf "${nginx_configure_options[@]}" $add_module
+else
+  cd "$nginx_dir" && $conf $add_module
 fi
 
 make && echo "Built nginx at $nginx_dir/objs/nginx" || echo "Build failed"
