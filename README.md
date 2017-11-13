@@ -5,6 +5,12 @@ An nginx build tool to simplify downloading and building specific versions of [n
 
 [ngx_http_hello_world_module](https://github.com/jaygooby/build-nginx/tree/hello-world-module) courtesy of [perusio](https://github.com/perusio/nginx-hello-world-module) and [kolesar-andras](https://github.com/kolesar-andras/nginx-hello-world-module/tree/content-length)
 
+# TODO
+
+  - [x] Work with git urls
+  - [ ] Work with archive urls (gzip & zipped tar releases) (WIP: see [work-with-archive-urls branch](https://github.com/jaygooby/build-nginx/tree/feature/work-with-archive-urls))
+  - [ ] Provide different example configurations
+
 # Usage
 Basic usage:
 
