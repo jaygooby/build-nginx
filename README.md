@@ -32,6 +32,8 @@ How about getting nginx stable version 1.12.2 built with OpenSSL version 1.0.2l 
 
 Because you've specified OpenSSL as a dependency (`-d`) the nginx configure script automatically gets set with the `--with-openssl=` path.
 
+The `@` syntax lets you specify a release/tag/branch (or even specific commit - any [tree-ish reference](https://git-scm.com/docs/gitglossary#gitglossary-aiddeftree-ishatree-ishalsotreeish) should work).
+
 ## 3rd party modules
 You can also specify 3rd party modules using the same `git repo url @ version/tag/branch` string. In the following example we haven't specifed an nginx version, so we clone from master, but we do clone a forked version of the nginx-upstream-fair module at version 0.1.3
 
