@@ -22,9 +22,11 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 #
-# Builds nginx with an optional list of
+# Fetches and builds nginx, plus optional components like openssl, PCRE and any
+# 3rd-party modules you specify.
 #
 # Requires git version 1.7.10 or later (--single-branch option)
+# wget, tar and zip (to expand non-git archive files).
 #
 # Call with ./build-nginx to clone and compile the various modules and
 # nginx itself. Defaults to building in ~/src/nginx-build
@@ -74,6 +76,86 @@ module_configure_dir() {
   echo $1 | cut -sd',' -f2
 }
 
+expand_error() {
+  echo "Couldn't extract $1" && exit 1
+}
+
+# Given an archive file url (e.g. https://github.com/arut/nginx-rtmp-module/archive/master.zip)
+# turn this into a file-system safe filename we can save the archive to,
+# e.g https___github_com_arut_nginx-rtmp-module_archive_master.zip
+url_to_filename() {
+  archive_url="$1"
+  archive_path="$(dirname $archive_url)"
+  archive_path="${archive_path//[.:\/]/_}"
+  archive_file="${archive_path}_$(basename "$archive_url")"
+  echo $archive_file
+}
+
+# Does the archive have a containing folder
+archive_has_containing_folder() {
+  archive_file=$1
+
+  case "$archive_file" in
+    *tar.gz*) (tar -ztf "$archive_file" | head -1 | grep -q \/);;
+    *tgz*)    (tar -ztf "$archive_file" | head -1 | grep -q \/);;
+    *zip)     (zipinfo -Z1 "$archive_file" | head -1 | grep -q \/);;
+  esac && echo $?
+}
+
+# Extract the tar archive $1 to folder $2
+# if it has a containing folder, then strip the initial folder in the archive
+untar_archive() {
+  archive_file="$1"
+  destination="$2"
+  strip_containing_folder=$(archive_has_containing_folder "$1")
+
+  rm -rf "$destination"
+  mkdir -f "$destination"
+  if [ $strip_containing_folder == "0" ]; then
+    tar -xf --strip-components 1 -C "$destination" "$archive_file"
+  else
+    tar -xf -C "$destination" "$archive_file"
+  fi
+}
+
+# Extract the zip archive $1 to folder $2
+# if it has a containing folder, then strip the initial folder in the archive
+unzip_archive() {
+  archive_file="$1"
+  destination="$2"
+
+  # echo archive_file: $archive_file
+  # echo destination: $destination
+
+  strip_containing_folder=$(archive_has_containing_folder "$1")
+
+  # echo "strip_containing_folder? $strip_containing_folder"
+
+  rm -rf "$destination"
+  unzip -u "$archive_file" -d "$destination"
+  if [ "$strip_containing_folder" -eq "0" ]; then
+    mv "$destination"/*/* "$destination"
+  fi
+}
+
+# Fetches the archive url and expands it into a folder
+# named like the url it came from
+download_and_expand() {
+  dir="$1"
+  archive_url="$2"
+  archive_file=$(url_to_filename "$archive_url")
+  archive_extension="${archive_file##*.}"
+  expanded_destination="$(basename $archive_file .$archive_extension)"
+
+  wget "$archive_url" -O "$dir/$archive_file"
+  case "$archive_url" in
+    *tar.gz*) (untar_archive "$dir/$archive_file" "$dir/$expanded_destination") || expand_error $archive_url ;;
+    *tgz*)    (untar_archive "$dir/$archive_file" "$dir/$expanded_destination") || expand_error $archive_url ;;
+    *zip)     (unzip_archive "$dir/$archive_file" "$dir/$expanded_destination") || expand_error $archive_url ;;
+  esac
+
+}
+
 clone_error() {
   echo "Couldn't checkout $1 at $2 into $3"
   exit 1
@@ -83,12 +165,19 @@ clone_error() {
 # branch/tag/version requested in $3 as the folder named in $4
 # Does all this in the build folder which is passed in $1
 clone_at_version() {
+  dir="$1"
   repo="$2"
   tag="${3:-master}"
 
-  cd "$1"
-  rm -rf "$4"
-  git clone "$repo" --branch "$tag" --single-branch  "$4" || clone_error "$2" "$3" "$4"
+  if [[ "$repo" =~ \.(zip|tgz|tar\.gz) ]]; then
+    # don't clone, download and expand
+    download_and_expand "$dir" "$repo"
+  else
+    # git clone
+    cd "$dir"
+    rm -rf "$4"
+    git clone --depth 1 "$repo" --branch "$tag" --single-branch  "$4" || clone_error "$repo" "$tag" "$4"
+  fi
 }
 
 #
@@ -96,9 +185,20 @@ clone_dependencies() {
   dependencies=($1)
   for dependency in "${dependencies[@]}"; do
     read -r repo_url branch <<<$(git_url_version_and_module_configure_dir $dependency)
-    branch=${branch:-master}
 
-    source_dir="$build_dir/$(basename $repo_url .git)-$branch"
+    # Only set a branch if we're cloning from git
+    # If we're extracting a tgz or zip, we don't care
+    if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
+      case "$repo_url" in
+        *tar.gz*) extension=".tar.gz" ;;
+        *tgz*)    extension=".tgz" ;;
+        *zip)     extension=".zip" ;;
+      esac
+      source_dir="$build_dir/$(basename $repo_url $extension)"
+    else
+      branch=${branch:-master}
+      source_dir="$build_dir/$(basename $repo_url .git)-$branch"
+    fi
 
     # Set the --with-openssl=DIR, --with-zlib=DIR, --with-openssl=DIR or
     # --with-libatomic=DIR nginx configure option if the relevant
@@ -127,11 +227,23 @@ clone_nginx_and_modules() {
   # to the nginx --configure options for inclusion in the build
   for source in "${sources[@]}"; do
     read -r repo_url branch add_module_dir <<<$(git_url_version_and_module_configure_dir $source)
-    branch=${branch:-master}
 
-    source_dir="$build_dir/$(basename $repo_url .git)-$branch"
-    add_module_dir="$source_dir/$add_module_dir"
-    add_module_dir="${add_module_dir%/}" # strip the trailing slash
+    # Only set a branch if we're cloning from git
+    # If we're extracting a tgz or zip, we don't care
+    if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
+      case "$repo_url" in
+        *tar.gz*) extension=".tar.gz" ;;
+        *tgz*)    extension=".tgz" ;;
+        *zip)     extension=".zip" ;;
+      esac
+      add_module_dir="$build_dir/$(basename $(url_to_filename "$repo_url") $extension)"
+    else
+      branch=${branch:-master}
+      source_dir="$build_dir/$(basename $repo_url .git)-$branch"
+    fi
+
+    # add_module_dir="$source_dir/$add_module_dir"
+    # add_module_dir="${add_module_dir%/}" # strip the trailing slash
 
     # We don't want add nginx itself (it's always the first element
     # of the sources array)
@@ -194,11 +306,11 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
     #    recompile. Useful if you're making manual changes.
     b) dont_clone=1 ;;
 
-    # -c <dependencies> optional dependencies such as pcre and openssl
+    # -c download the git sources and then stop. Useful if you need to grab
+    #    the sources for caching, archiving etc.
     c) clone_only=1 ;;
 
-    # -d download the git sources and then stop. Useful if you need to grab
-    #    the sources for caching, archiving etc.
+    # -d <dependency url> optional dependencies such as pcre and openssl
     d) dependencies="${dependencies:-} ${OPTARG}" ;;
 
     # -k <file> the file that specifes this script's command line options
@@ -265,15 +377,21 @@ if [ -n "${clone_only:-}" ]; then
 fi
 
 # If we're cloning and building, clean, configure and build
-cd "$nginx_dir"
 make clean || echo "No Makefile to clean"
 
-if [ -n "${nginx_configure_options:-}" ]; then
-  echo ./auto/configure "${nginx_configure_options[@]}" $add_module
-  ./auto/configure "${nginx_configure_options[@]}" $add_module
+# If we cloned from git, we call ./auto/configure but if we
+# downloaded a release, we call ./configure
+if [ -f "$nginx_dir/auto/configure" ]; then
+  conf=./auto/configure
 else
-  ./auto/configure $add_module
+  conf=./configure
 fi
 
+if [ -n "${nginx_configure_options:-}" ]; then
+  echo $conf "${nginx_configure_options[@]}" $add_module
+  cd "$nginx_dir" && $conf "${nginx_configure_options[@]}" $add_module
+else
+  cd "$nginx_dir" && $conf $add_module
+fi
 make && echo "Built nginx at $nginx_dir/objs/nginx" || echo "Build failed"
 # and we're done
