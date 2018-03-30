@@ -186,6 +186,7 @@ clone_at_version() {
 clone_dependencies() {
   dependencies=($1)
   for dependency in "${dependencies[@]}"; do
+    echo "Adding $dependency"
     read -r repo_url branch <<<$(git_url_version_and_module_configure_dir $dependency)
 
     # Only set a branch if we're cloning from git
@@ -196,13 +197,13 @@ clone_dependencies() {
         *tgz*)    extension=".tgz" ;;
         *zip)     extension=".zip" ;;
       esac
-      source_dir="$build_dir/$(basename $repo_url $extension)"
+      source_dir="$build_dir/$(basename $(url_to_filename "$repo_url") $extension)"
     else
       branch=${branch:-master}
       source_dir="$build_dir/$(basename $repo_url .git)-$branch"
     fi
 
-    # echo "Fetching or cloning $dependency into $source_dir"
+    echo "Fetching or cloning $dependency into $source_dir"
 
     # Set the --with-openssl=DIR, --with-zlib=DIR, --with-openssl=DIR or
     # --with-libatomic=DIR nginx configure option if the relevant
@@ -230,7 +231,7 @@ clone_nginx_and_modules() {
   # branch. If we're cloning any non-core nginx modules, we'll add them
   # to the nginx --configure options for inclusion in the build
   for source in "${sources[@]}"; do
-    # echo "Adding $source"
+    echo "Adding $source"
     read -r repo_url branch add_module_dir <<<$(git_url_version_and_module_configure_dir $source)
 
     # Only set a branch if we're cloning from git

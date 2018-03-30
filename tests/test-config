@@ -1,0 +1,3 @@
+-n https://github.com/nginx/nginx.git@branches/stable-1.12
+-o "--with-http_stub_status_module"
+-d https://ftp.pcre.org/pub/pcre/pcre-8.41.tar.gz
