@@ -33,7 +33,7 @@
 # It will make this folder if it doesn't exist.
 #
 # To use a different build folder call the script like this:
-# BUILD_DIR=/some/folder ./build-nginx
+# ./build-nginx -s /some/folder
 #
 # To clone (download) but not compile the modules and nginx source:
 # ./build-nginx -d
