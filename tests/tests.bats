@@ -55,7 +55,7 @@
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
-  [[ "$output" =~ "$builddir/nginx-master/objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
+  [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
 }
 
 @test "nginx with openssl 1.0.2l" {
