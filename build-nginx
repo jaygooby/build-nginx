@@ -61,13 +61,18 @@ git_url_version_and_module_configure_dir() {
 # Takes a line like https://github.com/nginx/nginx.git@release-1.12.1
 # and returns the git url
 git_url() {
-  echo $1 | cut -sd'@' -f1
+  echo $1 | cut -d'@' -f1 | cut -d',' -f1
 }
 
 # Takes a line like https://github.com/nginx/nginx.git@release-1.12.1
-# and returns the git url
+# and returns the treeish value, defaults to master if none present
 git_version() {
-  echo $1 | cut -d'@' -f2 | cut -d',' -f1
+  version=$(echo $1 | cut -sd'@' -f2 | cut -d',' -f1)
+  if [ -z "$version" ]; then
+    echo master
+  else
+    echo $version
+  fi
 }
 
 # Takes a line like https://github.com/nbs-system/naxsi.git@0.55.3,naxsi_src
@@ -194,7 +199,6 @@ clone_at_version() {
   fi
 }
 
-#
 clone_dependencies() {
   dependencies=($1)
   for dependency in "${dependencies[@]}"; do
@@ -243,7 +247,6 @@ clone_nginx_and_modules() {
   # branch. If we're cloning any non-core nginx modules, we'll add them
   # to the nginx --configure options for inclusion in the build
   for source in "${sources[@]}"; do
-    echo "Adding $source"
     read -r repo_url branch add_module_dir <<<$(git_url_version_and_module_configure_dir $source)
 
     # Only set a branch if we're cloning from git
@@ -266,7 +269,7 @@ clone_nginx_and_modules() {
     if [ $items -eq 0 ]; then
       nginx_dir=$source_dir
     else
-      add_module="${add_module:-} --add-module=$source_dir"
+      add_module="${add_module:-} --add-module=$source_dir/$add_module_dir"
     fi
     (( items += 1 ))
 
@@ -366,7 +369,7 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
        unset "options[$delete]"
        delete=$OPTIND-3
        unset "options[$delete]"
-       echo calling $0"${cli_options[@]}" "${options[@]}"
+       # echo calling $0"${cli_options[@]}" "${options[@]}"
        # - this is still problematic as you also need to remove
        # or decide which cli argument overrides the same one set in the
        # -k file; e.g. if you specify -s in both the cli and the -k file

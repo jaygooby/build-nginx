@@ -80,6 +80,7 @@
 @test "Build nginx from an archive URL" {
   # skip
   builddir="$(mktemp -d)"
+  echo $builddir >&2
   run ./build-nginx -s "$builddir" -n http://nginx.org/download/nginx-1.13.6.tar.gz
   [ $status -eq 0 ]
   [ -d "$builddir/http___nginx_org_download_nginx-1.13.6" ]
@@ -95,6 +96,22 @@
   [ -d "$builddir/http___nginx_org_download_nginx-1.13.6" ]
   run "$builddir/http___nginx_org_download_nginx-1.13.6/objs/nginx" -V
   [[ "$output" =~ "nginx version: nginx/1.13.6" ]]
+}
+
+@test "Specify a module config folder using a git url" {
+  # skip
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -m https://github.com/nbs-system/naxsi.git,naxsi_src
+  [ $status -eq 0 ]
+  [[ "$output" =~ "objs/addon/naxsi_src/naxsi_runtime.o" ]]
+}
+
+@test "Specify a module config folder using an archive url" {
+  # skip
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -m https://github.com/nbs-system/naxsi/archive/0.55.3.tar.gz,naxsi_src
+  [ $status -eq 0 ]
+  [[ "$output" =~ "objs/addon/naxsi_src/naxsi_runtime.o" ]]
 }
 
 @test "Use a config file" {
