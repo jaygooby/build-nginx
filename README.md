@@ -1,9 +1,9 @@
-# About build-nginx
-An nginx build tool to simplify downloading and building specific versions of [nginx](http://nginx.org/) with different core and 3rd-party modules.
+# About `build-nginx`
+An nginx build tool to really simplify downloading and building specific versions of [nginx](http://nginx.org/) with different core and 3rd-party modules.
 
 [![Build Status](https://travis-ci.org/jaygooby/build-nginx.svg?branch=master)](https://travis-ci.org/jaygooby/build-nginx)
 
-[ngx_http_hello_world_module](https://github.com/jaygooby/build-nginx/tree/hello-world-module) courtesy of [perusio](https://github.com/perusio/nginx-hello-world-module) and [kolesar-andras](https://github.com/kolesar-andras/nginx-hello-world-module/tree/content-length)
+[`ngx_http_hello_world_module`](https://github.com/jaygooby/build-nginx/tree/hello-world-module) courtesy of [perusio](https://github.com/perusio/nginx-hello-world-module) and [kolesar-andras](https://github.com/kolesar-andras/nginx-hello-world-module/tree/content-length)
 
 # TODO                                                                                                                                    
 
@@ -66,7 +66,7 @@ You could also use the official release archive URL:
 ```
 
 ## 3rd party modules with a different config folder
-Some nginx modules don't have the `config` file in their root, and in these cases you need to let the nginx configure script know where to find it. Do this with an optional folder name after the version; in the example below we're using the nginx NAXI project repository, specifying version `0.55.3` and letting the configure script know it needs to look in the NAXI `naxi_src` folder for the `config` file.
+Some nginx modules don't have the `config` file in their root, and in these cases you need to let the nginx configure script know where to find it. Do this with an optional folder name after the version; in the example below we're using the [NAXSI](https://github.com/nbs-system/naxsi) project repository, specifying version `0.55.3` and letting the configure script know it needs to look in the NAXSI `naxsi_src` folder for the `config` file.
 
 ```
 ./build-nginx \
@@ -75,7 +75,7 @@ Some nginx modules don't have the `config` file in their root, and in these case
 ```
 
 ## Configuration files
-As well as specifying the options to build-nginx on the command line, you can save them into a configuration file, and pass this to the script instead:
+As well as specifying the options to `build-nginx` on the command line, you can save them into a configuration file, and pass this to the script instead:
 
 ```
 ./build-nginx -k my-special-nginx-config
@@ -105,14 +105,15 @@ Call with `-h` to see the full set of options you can use. Currently these are:
 
 -d <dependencies> Specify a git url and branch/tag/version for e.g. pcre
 
--k <file>  Specify which config file to read this script's arguments from.
-           The config file is a text file in which command line arguments
-           can be written which then will be used as if they were written on
-           the actual command line.
+-k <file> Specify which config file to read this script's arguments from.
+          The config file is a text file in which command line arguments
+          can be written which then will be used as if they were written
+          on the actual command line.
+-h Help
 
--m <additional modules> Specify a git url, branch/tag/version and
-                        optional src folder where nginx looks for the
-                        module config file.
+-m <additional modules> Specify either an archive (.tar.gz, .tgz or .zip)
+                        URL or a git url, branch/tag/version and optional src
+                        folder where nginx looks for the module config file
 
 -o <options> To pass additional options to the nginx configure script
 
@@ -120,9 +121,9 @@ Call with `-h` to see the full set of options you can use. Currently these are:
                      nginx and any modules and dependencies it needs
                      to build. Defaults to ~/src/nginx-build
 
--n <git-repo and/or version> Optional nginx git repo url and/or optional
-                             branch/tag/version. Defaults to
-                             https://github.com/nginx/nginx and master.
-                             To specify just a branch/tag/version use @branch.
-                             To specify both, use git-url@branch
+-n <url> Optional nginx archive (.tar.gz, .tgz or .zip) URL or git repo url
+         and/or optional branch/tag/version. Defaults to
+         https://github.com/nginx/nginx.git@master. To specify just a
+         branch/tag/version use @branch. To specify both, use git-url@branch
+
 ```
