@@ -107,7 +107,13 @@ archive_has_containing_folder() {
 untar_archive() {
   archive_file="$1"
   destination="$2"
+
+  # echo archive_file: $archive_file
+  # echo destination: $destination
+
   strip_containing_folder=$(archive_has_containing_folder "$1")
+
+  # echo "strip_containing_folder? $strip_containing_folder"
 
   rm -rf "$destination"
   mkdir -p "$destination"
@@ -144,8 +150,14 @@ download_and_expand() {
   dir="$1"
   archive_url="$2"
   archive_file=$(url_to_filename "$archive_url")
-  archive_extension="${archive_file##*.}"
-  expanded_destination="$(basename $archive_file .$archive_extension)"
+
+  case "$archive_url" in
+    *tar.gz*) archive_extension=".tar.gz" ;;
+    *tgz*)    archive_extension=".tgz" ;;
+    *zip)     archive_extension=".zip" ;;
+  esac
+
+  expanded_destination="$(basename $archive_file $archive_extension)"
 
   # echo expanded_destination: $expanded_destination
 
@@ -193,7 +205,7 @@ clone_dependencies() {
     # If we're extracting a tgz or zip, we don't care
     if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
       case "$repo_url" in
-        *tar.gz*) extension=".gz" ;;
+        *tar.gz*) extension=".tar.gz" ;;
         *tgz*)    extension=".tgz" ;;
         *zip)     extension=".zip" ;;
       esac
@@ -239,7 +251,7 @@ clone_nginx_and_modules() {
     if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
       # echo "$repo_url looks like an archive URL"
       case "$repo_url" in
-        *tar.gz*) extension=".gz" ;;
+        *tar.gz*) extension=".tar.gz" ;;
         *tgz*)    extension=".tgz" ;;
         *zip)     extension=".zip" ;;
       esac
