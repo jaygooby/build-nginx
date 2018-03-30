@@ -110,9 +110,9 @@ untar_archive() {
   strip_containing_folder=$(archive_has_containing_folder "$1")
 
   rm -rf "$destination"
-  mkdir -f "$destination"
+  mkdir -p "$destination"
   if [ $strip_containing_folder == "0" ]; then
-    tar -xf --strip-components 1 -C "$destination" "$archive_file"
+    tar -x --strip-components 1 -C "$destination" -f "$archive_file"
   else
     tar -xf -C "$destination" "$archive_file"
   fi
@@ -146,6 +146,8 @@ download_and_expand() {
   archive_file=$(url_to_filename "$archive_url")
   archive_extension="${archive_file##*.}"
   expanded_destination="$(basename $archive_file .$archive_extension)"
+
+  # echo expanded_destination: $expanded_destination
 
   wget "$archive_url" -O "$dir/$archive_file"
   case "$archive_url" in
@@ -190,7 +192,7 @@ clone_dependencies() {
     # If we're extracting a tgz or zip, we don't care
     if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
       case "$repo_url" in
-        *tar.gz*) extension=".tar.gz" ;;
+        *tar.gz*) extension=".gz" ;;
         *tgz*)    extension=".tgz" ;;
         *zip)     extension=".zip" ;;
       esac
@@ -199,6 +201,8 @@ clone_dependencies() {
       branch=${branch:-master}
       source_dir="$build_dir/$(basename $repo_url .git)-$branch"
     fi
+
+    # echo "Fetching or cloning $dependency into $source_dir"
 
     # Set the --with-openssl=DIR, --with-zlib=DIR, --with-openssl=DIR or
     # --with-libatomic=DIR nginx configure option if the relevant
@@ -226,31 +230,30 @@ clone_nginx_and_modules() {
   # branch. If we're cloning any non-core nginx modules, we'll add them
   # to the nginx --configure options for inclusion in the build
   for source in "${sources[@]}"; do
+    # echo "Adding $source"
     read -r repo_url branch add_module_dir <<<$(git_url_version_and_module_configure_dir $source)
 
     # Only set a branch if we're cloning from git
     # If we're extracting a tgz or zip, we don't care
     if [[ "$repo_url" =~ \.(zip|tgz|tar\.gz) ]]; then
+      # echo "$repo_url looks like an archive URL"
       case "$repo_url" in
-        *tar.gz*) extension=".tar.gz" ;;
+        *tar.gz*) extension=".gz" ;;
         *tgz*)    extension=".tgz" ;;
         *zip)     extension=".zip" ;;
       esac
-      add_module_dir="$build_dir/$(basename $(url_to_filename "$repo_url") $extension)"
+      source_dir="$build_dir/$(basename $(url_to_filename "$repo_url") $extension)"
     else
       branch=${branch:-master}
       source_dir="$build_dir/$(basename $repo_url .git)-$branch"
     fi
-
-    # add_module_dir="$source_dir/$add_module_dir"
-    # add_module_dir="${add_module_dir%/}" # strip the trailing slash
 
     # We don't want add nginx itself (it's always the first element
     # of the sources array)
     if [ $items -eq 0 ]; then
       nginx_dir=$source_dir
     else
-      add_module="${add_module:-} --add-module=$add_module_dir"
+      add_module="${add_module:-} --add-module=$source_dir"
     fi
     (( items += 1 ))
 
