@@ -7,8 +7,9 @@ An nginx build tool to simplify downloading and building specific versions of [n
 
 # TODO                                                                                                                                    
 
-  - [x] Work with git urls                                                                                                                
-  - [x] Work with archive urls (gzip & zipped tar releases) (WIP: see [work-with-archive-urls branch](https://github.com/jaygooby/build-nginx/tree/feature/work-with-archive-urls))
+  - [x] Work with git urls
+  - [x] Work with archive urls (gzip & zipped tar releases)
+  - [ ] Handle dynamic nginx modules
   - [ ] Provide different example configurations
   - [ ] Update README with notes about:
     - [ ] 64 bit MacOS Openssl builds
@@ -22,7 +23,7 @@ Basic usage:
 ./build-nginx
 ```
 
-Will `git --single-branch clone` the nginx `master` branch, configure and build it. Not so very useful...
+Will `git --depth 1 --single-branch clone` the nginx `master` branch, configure and build it. Not so very useful...
 
 ## Specific nginx version and OpenSSL dependency, with non-core module
 How about getting nginx stable version 1.12.2 built with OpenSSL version 1.0.2l and HTTP/2 support?
