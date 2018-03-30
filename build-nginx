@@ -308,8 +308,13 @@ declare -a nginx_configure_options
 declare -a cli_options
 declare -a sources
 
+# capture the commandline arguments - we need them later
+# if a -k file is being used
+options=( "$@" )
+
 # Parse the options
 while getopts ":bcd:k:m:n:o:s:" opt; do
+  # echo $opt $OPTARG
   case ${opt} in
     # -b don't git clone any sources, just cd into the build dir and
     #    recompile. Useful if you're making manual changes.
@@ -323,7 +328,9 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
     d) dependencies="${dependencies:-} ${OPTARG}" ;;
 
     # -k <file> the file that specifes this script's command line options
-    k) while IFS= read -r config; do
+    k) [ -e "$OPTARG" ] || (echo -e "Config file $OPTARG doesn't exist" && usage >&2 && exit 1)
+
+       while IFS= read -r config; do
          # strip any comments whilst slurping in the file
          config=$(echo -e "${config}" | cut -d'#' -f1)
          if [ -n "${config}" ]; then
@@ -333,9 +340,25 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
        # TODO: if there's a space between $1 and the quoted cli_options like
        # exec $0 "${cli_options[@]}"
        # then the options aren't passed to the command when you use the -k
-       # option. There's a space that needs choping
+       # option. There's a space that needs chopping
        # somewhere...
-       exec $0"${cli_options[@]}"
+       # Also it seems that if you use -k and any other switches, the other
+       # switches are ignored/overwritten by the -k call
+       #
+       # So remove the -k and its optarg from the options array
+       # and retain the existing ones from the commandline
+       # to save those from being wiped out when we call the options
+       # set in the -k file
+       delete=$OPTIND-2
+       unset "options[$delete]"
+       delete=$OPTIND-3
+       unset "options[$delete]"
+       echo calling $0"${cli_options[@]}" "${options[@]}"
+       # - this is still problematic as you also need to remove
+       # or decide which cli argument overrides the same one set in the
+       # -k file; e.g. if you specify -s in both the cli and the -k file
+       # which -s takes precedence?
+       exec $0"${cli_options[@]}" "${options[@]}"
        ;;
 
     # -m <non-core nginx modules> optional nginx modules to build
@@ -366,6 +389,7 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
 done
 
 # Make the build folder where all this will happen
+echo "Building nginx in $build_dir"
 mkdir -p "$build_dir" || (echo "Couldn't find or make $build_dir" && exit 1)
 
 # Clone any of the -d dependency libraries that have been requested
