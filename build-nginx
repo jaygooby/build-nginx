@@ -369,6 +369,7 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
        unset "options[$delete]"
        delete=$OPTIND-3
        unset "options[$delete]"
+       options=${options:-""}
        # echo calling $0"${cli_options[@]}" "${options[@]}"
        # - this is still problematic as you also need to remove
        # or decide which cli argument overrides the same one set in the

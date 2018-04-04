@@ -114,14 +114,24 @@
   [[ "$output" =~ "objs/addon/naxsi_src/naxsi_runtime.o" ]]
 }
 
-@test "Use a config file" {
+@test "Use just a config file" {
+  # skip
+  builddir="$HOME/.build-nginx"
+  run ./build-nginx -k tests/test-config
+  [ $status -eq 0 ]
+  run "$builddir/nginx-branches/stable-1.12/objs/nginx" -V
+  [[ "$output" =~ "--with-http_stub_status_module" ]]
+  [[ "$output" =~ "--with-pcre" ]]
+}
+
+@test "Use a config file with additional commandline options" {
   # skip
   builddir="$(mktemp -d)"
-  echo $builddir >&2
-  run ./build-nginx -s "$builddir" -k tests/test-config
+  run ./build-nginx -s "$builddir" -k tests/test-config -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
   run "$builddir/nginx-branches/stable-1.12/objs/nginx" -V
   [[ "$output" =~ "nginx version: nginx/1.12" ]]
   [[ "$output" =~ "--with-http_stub_status_module" ]]
+  [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
   [[ "$output" =~ "--with-pcre" ]]
 }
