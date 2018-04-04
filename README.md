@@ -119,7 +119,7 @@ Call with `-h` to see the full set of options you can use. Currently these are:
 
 -s <build directory> The directory where this script will git clone
                      nginx and any modules and dependencies it needs
-                     to build. Defaults to ~/src/nginx-build
+                     to build. Defaults to ~/.build-nginx
 
 -n <url> Optional nginx archive (.tar.gz, .tgz or .zip) URL or git repo url
          and/or optional branch/tag/version. Defaults to

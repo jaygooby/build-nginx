@@ -29,7 +29,7 @@
 # wget, tar and zip (to expand non-git archive files).
 #
 # Call with ./build-nginx to clone and compile the various modules and
-# nginx itself. Defaults to building in ~/src/nginx-build
+# nginx itself. Defaults to building in ~/.build-nginx
 # It will make this folder if it doesn't exist.
 #
 # To use a different build folder call the script like this:
@@ -38,7 +38,7 @@
 # To clone (download) but not compile the modules and nginx source:
 # ./build-nginx -d
 #
-# And to build from an existing ~/src/nginx-build or $BUILD_DIR folder
+# And to build from an existing ~/.build-nginx or $BUILD_DIR folder
 # ./build-nginx -b
 #
 # To specify additional options for the nginx configure script, use the
@@ -302,7 +302,7 @@ usage() {
 
     -s <build directory> The directory where this script will git clone
                          nginx and any modules and dependencies it needs
-                         to build. Defaults to ~/src/nginx-build
+                         to build. Defaults to ~/.build-nginx
 
     -n <url> Optional nginx archive (.tar.gz, .tgz or .zip) URL or git repo url
              and/or optional branch/tag/version. Defaults to
@@ -313,7 +313,7 @@ USAGE
 }
 
 # set some defaults
-build_dir="$HOME/src/nginx-build"
+build_dir="$HOME/.build-nginx"
 nginx_dir=""
 nginx_branch="master"
 nginx_repo_and_branch="https://github.com/nginx/nginx.git@${nginx_branch}"
