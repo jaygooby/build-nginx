@@ -129,9 +129,9 @@
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -k tests/test-config -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
+  [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
   run "$builddir/nginx-branches/stable-1.12/objs/nginx" -V
   [[ "$output" =~ "nginx version: nginx/1.12" ]]
   [[ "$output" =~ "--with-http_stub_status_module" ]]
-  [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
   [[ "$output" =~ "--with-pcre" ]]
 }
