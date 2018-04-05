@@ -13,8 +13,9 @@ An nginx build tool to really simplify downloading and building specific version
   - [ ] Provide different example configurations
   - [ ] Update README with notes about:
     - [ ] 64 bit MacOS Openssl builds
-    - [ ] Use non-static Openssl on Mac
+    - [ ] Use non-static Openssl on MacOS
     - [ ] How certain modules might implicitly enable the `--with-http_ssl_module` option
+    - [ ] what takes precedence when you specify the same commandline option in a -k options file **and** on the commandline
 
 # Usage
 Basic usage:
