@@ -57,7 +57,7 @@ You can also specify 3rd party modules using the same `git repo url @ version/ta
 -m https://github.com/itoffshore/nginx-upstream-fair@0.1.3
 ```
 
-Because we've specified the module (`-m`) the nginx configure script is automatically called with the `--add-module=` option, pointing to where the module was cloned.
+Because we've specified a module (`-m`) the nginx configure script is automatically called with the `--add-module=` option, pointing to where the module was cloned.
 
 You could also use the official release archive URL:
 
