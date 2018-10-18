@@ -41,7 +41,7 @@ Because you've specified OpenSSL as a dependency (`-d`) the nginx configure scri
 The `@` syntax lets you specify a release/tag/branch (or even specific commit - any [tree-ish reference](https://git-scm.com/docs/gitglossary#gitglossary-aiddeftree-ishatree-ishalsotreeish) should work).
 
 ### Building OpenSSL on 64bit macos
-You'll need to export `KERNEL_BITS=64` or call `build-nginx` like this:
+You'll need to `export KERNEL_BITS=64` or call `build-nginx` like this:
 
 ```
 KERNEL_BITS=64 ./build-nginx \
