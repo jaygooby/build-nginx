@@ -12,7 +12,7 @@ An nginx build tool to really simplify downloading and building specific version
   - [ ] Handle dynamic nginx modules
   - [ ] Provide different example configurations
   - [ ] Update README with notes about:
-    - [ ] 64 bit MacOS Openssl builds
+    - [x] 64 bit MacOS Openssl builds
     - [ ] Use non-static Openssl on MacOS
     - [ ] How certain modules might implicitly enable the `--with-http_ssl_module` option
     - [ ] what takes precedence when you specify the same commandline option in a -k options file **and** on the commandline
@@ -39,6 +39,15 @@ How about getting nginx stable version 1.12.2 built with OpenSSL version 1.0.2l 
 Because you've specified OpenSSL as a dependency (`-d`) the nginx configure script automatically gets set with the `--with-openssl=` path.
 
 The `@` syntax lets you specify a release/tag/branch (or even specific commit - any [tree-ish reference](https://git-scm.com/docs/gitglossary#gitglossary-aiddeftree-ishatree-ishalsotreeish) should work).
+
+### Building OpenSSL on 64bit macos
+You'll need to export `KERNEL_BITS=64` or call `build-nginx` like this:
+
+```
+KERNEL_BITS=64 ./build-nginx \
+-n https://github.com/nginx/nginx.git@release-1.12.2 \
+-d https://github.com/openssl/openssl.git@OpenSSL_1_0_2l
+```
 
 ## Archive URLs as well as git repos
 If you don't want to use a git repo, you can also use a source archive:
