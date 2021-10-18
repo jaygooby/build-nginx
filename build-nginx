@@ -288,26 +288,26 @@ usage() {
 
     -d <dependencies> Specify a git url and branch/tag/version for e.g. pcre
 
+    -h Help
     -k <file> Specify which config file to read this script's arguments from.
               The config file is a text file in which command line arguments
               can be written which then will be used as if they were written
               on the actual command line.
-    -h Help
 
     -m <additional modules> Specify either an archive (.tar.gz, .tgz or .zip)
                             URL or a git url, branch/tag/version and optional src
                             folder where nginx looks for the module config file
+
+    -n <url> Optional nginx archive (.tar.gz, .tgz or .zip) URL or git repo url
+             and/or optional branch/tag/version. Defaults to
+             https://github.com/nginx/nginx.git@master. To specify just a
+             branch/tag/version use @branch. To specify both, use git-url@branch
 
     -o <options> To pass additional options to the nginx configure script
 
     -s <build directory> The directory where this script will git clone
                          nginx and any modules and dependencies it needs
                          to build. Defaults to ~/.build-nginx
-
-    -n <url> Optional nginx archive (.tar.gz, .tgz or .zip) URL or git repo url
-             and/or optional branch/tag/version. Defaults to
-             https://github.com/nginx/nginx.git@master. To specify just a
-             branch/tag/version use @branch. To specify both, use git-url@branch
 
 USAGE
 }
