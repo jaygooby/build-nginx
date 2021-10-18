@@ -289,6 +289,9 @@ usage() {
     -d <dependencies> Specify a git url and branch/tag/version for e.g. pcre
 
     -h Help
+
+    -i install (without this, we'll only build)
+
     -k <file> Specify which config file to read this script's arguments from.
               The config file is a text file in which command line arguments
               can be written which then will be used as if they were written
@@ -319,6 +322,7 @@ nginx_branch="master"
 nginx_repo_and_branch="https://github.com/nginx/nginx.git@${nginx_branch}"
 additional_nginx_modules=""
 cli_options=""
+make_install=""
 
 declare -a nginx_configure_options
 declare -a cli_options
@@ -329,7 +333,7 @@ declare -a sources
 options=( "$@" )
 
 # Parse the options
-while getopts ":bcd:k:m:n:o:s:" opt; do
+while getopts ":bcd:ik:m:n:o:s:" opt; do
   # echo $opt $OPTARG
   case ${opt} in
     # -b don't git clone any sources, just cd into the build dir and
@@ -342,6 +346,9 @@ while getopts ":bcd:k:m:n:o:s:" opt; do
 
     # -d <dependency url> optional dependencies such as pcre and openssl
     d) dependencies="${dependencies:-} ${OPTARG}" ;;
+
+    # -i to call nginx's make install
+    i) make_install=true ;;
 
     # -k <file> the file that specifes this script's command line options
     k) [ -e "$OPTARG" ] || (echo -e "Config file $OPTARG doesn't exist" && usage >&2 && exit 1)
@@ -444,4 +451,7 @@ else
   cd "$nginx_dir" && $conf $add_module
 fi
 make && echo "Built nginx at $nginx_dir/objs/nginx" || echo "Build failed"
+if [ "$make_install" = true ]; then
+  make install
+fi
 # and we're done

@@ -22,8 +22,16 @@
   [[ "$output" =~ "Invalid option" ]]
 }
 
-@test "Clone nginx master" {
+@test "Installing with -i switch" {
   # skip
+  installdir="$(mktemp -d)"
+  run ./build-nginx -i -o --prefix="$installdir"
+  [ $status -eq 0 ]
+  [[ "$output" =~ "cp objs/nginx '$installdir/sbin/nginx'" ]]
+}
+
+@test "Clone nginx master" {
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -c
   [ $status -eq 0 ]
