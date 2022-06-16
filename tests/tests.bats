@@ -85,6 +85,7 @@
 }
 
 @test "build with older PCRE 1 library" {
+  # skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -d https://ftp.exim.org/pub/pcre/pcre-8.44.tar.gz
   [ $status -eq 0 ]
@@ -153,7 +154,7 @@
   builddir="$HOME/.build-nginx"
   run ./build-nginx -k tests/test-config
   [ $status -eq 0 ]
-  run "$builddir/nginx-branches/stable-1.12/objs/nginx" -V
+  run "$builddir/nginx-release-1.21.5/objs/nginx" -V
   [[ "$output" =~ "--with-http_stub_status_module" ]]
   [[ "$output" =~ "--with-pcre" ]]
 }
@@ -164,8 +165,8 @@
   run ./build-nginx -s "$builddir" -k tests/test-config -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
   [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
-  run "$builddir/nginx-branches/stable-1.12/objs/nginx" -V
-  [[ "$output" =~ "nginx version: nginx/1.12" ]]
+  run "$builddir/nginx-release-1.21.5/objs/nginx" -V
+  [[ "$output" =~ "nginx version: nginx/1.21.5" ]]
   [[ "$output" =~ "--with-http_stub_status_module" ]]
   [[ "$output" =~ "--with-pcre" ]]
 }
