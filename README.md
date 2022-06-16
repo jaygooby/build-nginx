@@ -1,7 +1,7 @@
 # About `build-nginx`
 An nginx build tool to really simplify downloading and building specific versions of [nginx](http://nginx.org/) with different core and 3rd-party modules.
 
-[![Build Status](https://travis-ci.org/jaygooby/build-nginx.svg?branch=master)](https://travis-ci.org/jaygooby/build-nginx)
+[![Build Status](https://app.travis-ci.com/jaygooby/build-nginx.svg?branch=master)](https://app.travis-ci.com/github/jaygooby/build-nginx)
 
 [`ngx_http_hello_world_module`](https://github.com/jaygooby/build-nginx/tree/hello-world-module) courtesy of [perusio](https://github.com/perusio/nginx-hello-world-module) and [kolesar-andras](https://github.com/kolesar-andras/nginx-hello-world-module/tree/content-length)
 
