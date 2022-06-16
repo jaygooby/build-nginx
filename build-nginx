@@ -221,21 +221,34 @@ clone_dependencies() {
 
     echo "Fetching or cloning $dependency into $source_dir"
 
+    if [ -z "${dont_clone:-}" ]; then
+      # now git clone the repo at the branch/tag/version we want
+      clone_at_version "$build_dir" "$repo_url" "$branch" "$source_dir"
+    fi
+
     # Set the --with-openssl=DIR, --with-zlib=DIR, --with-openssl=DIR or
     # --with-libatomic=DIR nginx configure option if the relevant
     # library has been cloned
     case $repo_url in
-      *pcre*)      nginx_configure_options+=(--with-pcre="$source_dir") ;;
+      *pcre*)
+        nginx_configure_options+=(--with-pcre="$source_dir")
+        ensure_pcre2_has_a_makefile "$source_dir"
+        ;;
       *zlib*)      nginx_configure_options+=(--with-zlib="$source_dir") ;;
       *libatomic*) nginx_configure_options+=(--with-libatomic="$source_dir") ;;
       *openssl*)   nginx_configure_options+=(--with-openssl="$source_dir") ;;
     esac
 
-    if [ -z "${dont_clone:-}" ]; then
-      # now git clone the repo at the branch/tag/version we want
-      clone_at_version "$build_dir" "$repo_url" "$branch" "$source_dir"
-    fi
   done
+}
+
+# nginx expects to find a Makefile in the root of the PCRE2 library,
+# but the git cloned source version doesn't have this, and it needs generating
+# with autogen.sh. The .zip and tar archives don't have autogen.sh, but do
+# have a configure which will generate the Makefile
+ensure_pcre2_has_a_makefile() {
+  source_dir="$1"
+  cd "$source_dir" && (./autogen.sh || ./configure)
 }
 
 clone_nginx_and_modules() {

@@ -9,6 +9,14 @@ An nginx build tool to really simplify downloading and building specific version
 
   - [x] Work with git urls
   - [x] Work with archive urls (gzip & zipped tar releases)
+  - [x] Use PCRE2 (you can also still use PCRE 1) `build-nginx` will do the right thing based on the dependency url you provide:
+  * `build-nginx -d https://ftp.exim.org/pub/pcre/pcre-8.44.tar.gz` will use the old PCRE library
+
+  * `build-nginx -d https://github.com/PCRE2Project/pcre2.git` will use the official PCRE2 github repo
+
+  * `build-nginx -d https://github.com/PCRE2Project/pcre2.git@pcre2-10.40` will build the PCRE2 release tagged `pcre2-10.40`
+
+  * `build-nginx -d https://sourceforge.net/projects/pcre/files/pcre2/10.37/pcre2-10.37.zip` will use the `10.37` zip at the unofficial sourceforge mirror
   - [ ] Handle dynamic nginx modules
   - [ ] Provide different example configurations
   - [ ] Update README with notes about:
@@ -40,6 +48,12 @@ Because you've specified OpenSSL as a dependency (`-d`) the nginx configure scri
 
 The `@` syntax lets you specify a release/tag/branch (or even specific commit - any [tree-ish reference](https://git-scm.com/docs/gitglossary#gitglossary-aiddeftree-ishatree-ishalsotreeish) should work).
 
+Here we're building nginx `master` with PCRE2 tagged at `pcre2-10.40`
+
+```
+build-nginx -d https://github.com/PCRE2Project/pcre2.git@pcre2-10.40
+```
+
 ### Building OpenSSL on 64bit macos
 You'll need to `export KERNEL_BITS=64` or call `build-nginx` like this:
 
@@ -54,7 +68,7 @@ If you don't want to use a git repo, you can also use a source archive:
 
 ```
 ./build-nginx -n http://nginx.org/download/nginx-1.13.6.tar.gz \
-              -d https://ftp.exim.org/pub/pcre/pcre-8.44.tar.gz \
+              -d https://sourceforge.net/projects/pcre/files/pcre2/10.37/pcre2-10.37.zip \
               -d https://www.openssl.org/source/openssl-1.0.2l.tar.gz
 ```
 

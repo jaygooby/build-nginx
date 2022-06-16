@@ -31,7 +31,7 @@
 }
 
 @test "Clone nginx master" {
-  skip
+  # skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -c
   [ $status -eq 0 ]
@@ -64,6 +64,32 @@
   run ./build-nginx -s "$builddir" -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
   [[ "$output" =~ "objs/addon/build-nginx-hello-world-module/ngx_http_hello_world_module.o" ]]
+}
+
+@test "build with PCRE2 git url" {
+  # skip
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -d https://github.com/PCRE2Project/pcre2.git@pcre2-10.40
+  [ $status -eq 0 ]
+  run "$builddir/nginx-master/objs/nginx" -V
+  [[ "$output" =~ "--with-pcre=" ]]
+}
+
+@test "build with PCRE2 zip archive" {
+  # skip
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -d https://sourceforge.net/projects/pcre/files/pcre2/10.37/pcre2-10.37.zip
+  [ $status -eq 0 ]
+  run "$builddir/nginx-master/objs/nginx" -V
+  [[ "$output" =~ "--with-pcre=" ]]
+}
+
+@test "build with older PCRE 1 library" {
+  builddir="$(mktemp -d)"
+  run ./build-nginx -s "$builddir" -d https://ftp.exim.org/pub/pcre/pcre-8.44.tar.gz
+  [ $status -eq 0 ]
+  run "$builddir/nginx-master/objs/nginx" -V
+  [[ "$output" =~ "--with-pcre=" ]]
 }
 
 @test "nginx with openssl 1.0.2l" {
