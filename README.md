@@ -54,7 +54,7 @@ If you don't want to use a git repo, you can also use a source archive:
 
 ```
 ./build-nginx -n http://nginx.org/download/nginx-1.13.6.tar.gz \
-              -d https://ftp.pcre.org/pub/pcre/pcre-8.41.tar.gz \
+              -d https://ftp.exim.org/pub/pcre/pcre-8.44.tar.gz \
               -d https://www.openssl.org/source/openssl-1.0.2l.tar.gz
 ```
 
