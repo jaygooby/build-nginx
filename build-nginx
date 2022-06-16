@@ -50,6 +50,11 @@
 # directory, you'll need to ensure you export KERNEL_BITS=64
 set -eu
 
+# check dependencies
+for dependency in git tar zipinfo; do
+  which $dependency > /dev/null || (echo "You need to have '$dependency' installed and in your \$PATH" >&2 && exit 1)
+done
+
 # Takes a line like https://github.com/nginx/nginx.git@release-1.12.1
 # or https://github.com/nbs-system/naxsi.git@0.55.3,naxsi_src
 # where the branch/tag/version is specified by the value after the @
