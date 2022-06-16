@@ -51,7 +51,7 @@
 set -eu
 
 # check dependencies
-for dependency in git tar zipinfo; do
+for dependency in git tar wget zipinfo; do
   which $dependency > /dev/null || (echo "You need to have '$dependency' installed and in your \$PATH" >&2 && exit 1)
 done
 
