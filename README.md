@@ -127,6 +127,8 @@ Call with `-h` to see the full set of options you can use. Currently these are:
 
 -c If you only want to clone (download) and not build
 
+-f <optional compiler flags> Lets you specify CFLAGS like -Wno-unused-variable
+
 -d <dependencies> Specify a git url and branch/tag/version for e.g. pcre
 
 -h Help

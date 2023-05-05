@@ -306,6 +306,8 @@ usage() {
 
     -d <dependencies> Specify a git url and branch/tag/version for e.g. pcre
 
+    -f <optional compiler flags> Lets you specify CFLAGS like -Wno-unused-variable
+
     -h Help
 
     -i install (without this, we'll only build)
@@ -341,6 +343,7 @@ nginx_repo_and_branch="https://github.com/nginx/nginx.git@${nginx_branch}"
 additional_nginx_modules=""
 cli_options=""
 make_install=""
+cflags=""
 
 declare -a nginx_configure_options
 declare -a cli_options
@@ -351,7 +354,7 @@ declare -a sources
 options=( "$@" )
 
 # Parse the options
-while getopts ":bcd:ik:m:n:o:s:" opt; do
+while getopts ":bcd:f:ik:m:n:o:s:" opt; do
   # echo $opt $OPTARG
   case ${opt} in
     # -b don't git clone any sources, just cd into the build dir and
@@ -364,6 +367,10 @@ while getopts ":bcd:ik:m:n:o:s:" opt; do
 
     # -d <dependency url> optional dependencies such as pcre and openssl
     d) dependencies="${dependencies:-} ${OPTARG}" ;;
+
+    # -f <CFLAGS options> optional CFLAGS arguments like -Wno-unused-variable
+    # passed to the compiler
+    f) cflags="${CFLAGS:-} ${OPTARG}" ;;
 
     # -i to call nginx's make install
     i) make_install=true ;;
@@ -454,19 +461,19 @@ fi
 # If we're cloning and building, clean, configure and build
 make clean || echo "No Makefile to clean"
 
+echo "cflags is $cflags"
 # If we cloned from git, we call ./auto/configure but if we
 # downloaded a release, we call ./configure
 if [ -f "$nginx_dir/auto/configure" ]; then
-  conf=./auto/configure
+  conf="./auto/configure"
 else
-  conf=./configure
+  conf="./configure"
 fi
 
 if [ -n "${nginx_configure_options:-}" ]; then
-  echo $conf "${nginx_configure_options[@]}" $add_module
-  cd "$nginx_dir" && $conf "${nginx_configure_options[@]}" $add_module
+  cd "$nginx_dir" && CFLAGS="$cflags" $conf "${nginx_configure_options[@]}" $add_module
 else
-  cd "$nginx_dir" && $conf $add_module
+  cd "$nginx_dir" && CFLAGS="$cflags" $conf $add_module
 fi
 make && echo "Built nginx at $nginx_dir/objs/nginx" || echo "Build failed"
 if [ "$make_install" = true ]; then

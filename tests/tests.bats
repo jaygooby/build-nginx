@@ -1,29 +1,36 @@
 #!/usr/bin/env bats
 
 @test "-h switch" {
-  # skip
+  skip
   run ./build-nginx -h
   [ $status -eq 0 ]
   [[ "$output" =~ "-h Help" ]]
 }
 
 @test "-? switch" {
-  # skip
+  skip
   run ./build-nginx -h
   [ $status -eq 0 ]
   [[ "$output" =~ "-h Help" ]]
 }
 
 @test "Invalid switch" {
-  # skip
+  skip
   run ./build-nginx -X
 
   [ $status -ne 0 ]
   [[ "$output" =~ "Invalid option" ]]
 }
 
-@test "Installing with -i switch" {
+@test "-f CFLAGS switch" {
   # skip
+  run ./build-nginx -f -Wno-unused-variable
+  [ $status -eq 0 ]
+  [[ "$output" =~ "no-unused-variable" ]]
+}
+
+@test "Installing with -i switch" {
+  skip
   installdir="$(mktemp -d)"
   run ./build-nginx -i -o --prefix="$installdir"
   [ $status -eq 0 ]
@@ -31,7 +38,7 @@
 }
 
 @test "Clone nginx master" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -c
   [ $status -eq 0 ]
@@ -39,7 +46,7 @@
 }
 
 @test "Clone nginx at specific version" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -n https://github.com/nginx/nginx.git@release-1.12.2
   [ $status -eq 0 ]
@@ -49,7 +56,7 @@
 }
 
 @test "Build from an existing cloned source directory" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -c
   run ./build-nginx -s "$builddir" -b
@@ -59,7 +66,7 @@
 }
 
 @test "Clone and build nginx with a 3rd party module from a specific branch" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
@@ -67,7 +74,7 @@
 }
 
 @test "build with PCRE2 git url" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -d https://github.com/PCRE2Project/pcre2.git@pcre2-10.40
   [ $status -eq 0 ]
@@ -76,7 +83,7 @@
 }
 
 @test "build with PCRE2 zip archive" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -d https://sourceforge.net/projects/pcre/files/pcre2/10.37/pcre2-10.37.zip
   [ $status -eq 0 ]
@@ -85,7 +92,7 @@
 }
 
 @test "build with older PCRE 1 library" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -d https://ftp.exim.org/pub/pcre/pcre-8.44.tar.gz
   [ $status -eq 0 ]
@@ -94,7 +101,7 @@
 }
 
 @test "nginx with openssl 1.0.2l" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -d https://github.com/openssl/openssl.git@OpenSSL_1_0_2l
   [ $status -eq 0 ]
@@ -103,7 +110,7 @@
 }
 
 @test "nginx with openssl and zlib" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -d https://github.com/openssl/openssl.git -d https://github.com/madler/zlib.git
   [ $status -eq 0 ]
@@ -113,7 +120,7 @@
 }
 
 @test "Build nginx from an archive URL" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   echo $builddir >&2
   run ./build-nginx -s "$builddir" -n http://nginx.org/download/nginx-1.13.6.tar.gz
@@ -124,7 +131,7 @@
 }
 
 @test "Build nginx from an archive URL and with a module from a git repo URL" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -n http://nginx.org/download/nginx-1.13.6.tar.gz -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
@@ -134,7 +141,7 @@
 }
 
 @test "Specify a module config folder using a git url" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -m https://github.com/nbs-system/naxsi.git,naxsi_src
   [ $status -eq 0 ]
@@ -142,7 +149,7 @@
 }
 
 @test "Specify a module config folder using an archive url" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -m https://github.com/nbs-system/naxsi/archive/0.55.3.tar.gz,naxsi_src
   [ $status -eq 0 ]
@@ -150,7 +157,7 @@
 }
 
 @test "Use just a config file" {
-  # skip
+  skip
   builddir="$HOME/.build-nginx"
   run ./build-nginx -k tests/test-config
   [ $status -eq 0 ]
@@ -160,7 +167,7 @@
 }
 
 @test "Use a config file with additional commandline options" {
-  # skip
+  skip
   builddir="$(mktemp -d)"
   run ./build-nginx -s "$builddir" -k tests/test-config -m https://github.com/jaygooby/build-nginx.git@hello-world-module
   [ $status -eq 0 ]
