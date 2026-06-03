@@ -70,11 +70,11 @@ git_url() {
 }
 
 # Takes a line like https://github.com/nginx/nginx.git@release-1.12.1
-# and returns the treeish value, defaults to master if none present
+# and returns the treeish value, defaults to main if none present
 git_version() {
   version=$(echo $1 | cut -sd'@' -f2 | cut -d',' -f1)
   if [ -z "$version" ]; then
-    echo master
+    echo main
   else
     echo $version
   fi
@@ -90,9 +90,9 @@ expand_error() {
   echo "Couldn't extract $1" && exit 1
 }
 
-# Given an archive file url (e.g. https://github.com/arut/nginx-rtmp-module/archive/master.zip)
+# Given an archive file url (e.g. https://github.com/arut/nginx-rtmp-module/archive/main.zip)
 # turn this into a file-system safe filename we can save the archive to,
-# e.g https___github_com_arut_nginx-rtmp-module_archive_master.zip
+# e.g https___github_com_arut_nginx-rtmp-module_archive_main.zip
 url_to_filename() {
   archive_url="$1"
   archive_path="$(dirname $archive_url)"
@@ -182,7 +182,14 @@ download_and_expand() {
 
 clone_error() {
   echo "Couldn't checkout $1 at $2 into $3"
-  exit 1
+  if [ "$tag" = "main" ]; then
+    echo "Trying master branch instead of main"
+    git clone --depth 1 "$1" --branch "master" --single-branch "$3"
+  else
+    echo "You can try specifying a specific branch/tag/version with @ like this"
+    echo -e "\t https://example.com/some/repo.git@version_1.2-3"
+    exit 1
+  fi
 }
 
 # Takes a git repository url as $2 and clones the specific
@@ -191,7 +198,7 @@ clone_error() {
 clone_at_version() {
   dir="$1"
   repo="$2"
-  tag="${3:-master}"
+  tag="${3:-main}"
 
   if [[ "$repo" =~ \.(zip|tgz|tar\.gz) ]]; then
     # don't clone, download and expand
@@ -200,7 +207,7 @@ clone_at_version() {
     # git clone
     cd "$dir"
     rm -rf "$4"
-    git clone --depth 1 "$repo" --branch "$tag" --single-branch  "$4" || clone_error "$repo" "$tag" "$4"
+    git clone --depth 1 "$repo" --branch "$tag" --single-branch "$4" || clone_error "$repo" "$tag" "$4"
   fi
 }
 
@@ -220,7 +227,7 @@ clone_dependencies() {
       esac
       source_dir="$build_dir/$(basename $(url_to_filename "$repo_url") $extension)"
     else
-      branch=${branch:-master}
+      branch=${branch:-main}
       source_dir="$build_dir/$(basename $repo_url .git)-$branch"
     fi
 
@@ -278,7 +285,7 @@ clone_nginx_and_modules() {
       esac
       source_dir="$build_dir/$(basename $(url_to_filename "$repo_url") $extension)"
     else
-      branch=${branch:-master}
+      branch=${branch:-main}
       source_dir="$build_dir/$(basename $repo_url .git)-$branch"
     fi
 
@@ -323,7 +330,7 @@ usage() {
 
     -n <url> Optional nginx archive (.tar.gz, .tgz or .zip) URL or git repo url
              and/or optional branch/tag/version. Defaults to
-             https://github.com/nginx/nginx.git@master. To specify just a
+             https://github.com/nginx/nginx.git@main. To specify just a
              branch/tag/version use @branch. To specify both, use git-url@branch
 
     -o <options> To pass additional options to the nginx configure script
