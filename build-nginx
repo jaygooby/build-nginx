@@ -354,7 +354,8 @@ nginx_repo_and_branch="https://github.com/nginx/nginx.git@${nginx_branch}"
 additional_nginx_modules=""
 cli_options=""
 make_install=""
-cflags=""
+cflags="${CFLAGS:-}"
+ldflags="${LDFLAGS:-}"
 
 declare -a nginx_configure_options
 declare -a cli_options
@@ -472,7 +473,11 @@ fi
 # If we're cloning and building, clean, configure and build
 make clean || echo "No Makefile to clean"
 
+echo "nginx_configure_options is $nginx_configure_options"
 echo "cflags is $cflags"
+echo "ldflags is $ldflags"
+echo "nginx_configure_options: ${nginx_configure_options[@]}"
+
 # If we cloned from git, we call ./auto/configure but if we
 # downloaded a release, we call ./configure
 if [ -f "$nginx_dir/auto/configure" ]; then
@@ -482,9 +487,9 @@ else
 fi
 
 if [ -n "${nginx_configure_options:-}" ]; then
-  cd "$nginx_dir" && CFLAGS="$cflags" $conf "${nginx_configure_options[@]}" $add_module
+  cd "$nginx_dir" && CFLAGS="$cflags" LDFLAGS="$ldflags" $conf "${nginx_configure_options[@]}" $add_module
 else
-  cd "$nginx_dir" && CFLAGS="$cflags" $conf $add_module
+  cd "$nginx_dir" && CFLAGS="$cflags" LDFLAGS="$ldflags" $conf $add_module
 fi
 make && echo "Built nginx at $nginx_dir/objs/nginx" || echo "Build failed"
 if [ "$make_install" = true ]; then
