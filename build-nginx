@@ -481,9 +481,9 @@ echo "nginx_configure_options: ${nginx_configure_options[@]}"
 # If we cloned from git, we call ./auto/configure but if we
 # downloaded a release, we call ./configure
 if [ -f "$nginx_dir/auto/configure" ]; then
-  conf="./auto/configure"
+  conf="./auto/configure --with-compat"
 else
-  conf="./configure"
+  conf="./configure --with-compat"
 fi
 
 if [ -n "${nginx_configure_options:-}" ]; then
