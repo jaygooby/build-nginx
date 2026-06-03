@@ -249,6 +249,10 @@ clone_dependencies() {
       *zlib*)      nginx_configure_options+=(--with-zlib="$source_dir") ;;
       *libatomic*) nginx_configure_options+=(--with-libatomic="$source_dir") ;;
       *openssl*)   nginx_configure_options+=(--with-openssl="$source_dir") ;;
+      *boringssl*)
+        nginx_configure_options+=(--with-cc-opt="-I\"$source_dir/include\"")
+        nginx_configure_options+=(--with-ld-opt=\"-L\\"$source_dir/build/ssl\\" -L\\"$source_dir/build/crypto\\"\")
+        ;;
     esac
 
   done
